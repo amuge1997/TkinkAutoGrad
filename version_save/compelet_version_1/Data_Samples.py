@@ -1,5 +1,5 @@
 import numpy as n
-from Tensor import tensor
+
 
 def data1():
     n_samples = 5
@@ -46,8 +46,6 @@ def data3():
 
 
 def data4():
-    import matplotlib.pyplot as p
-
     n_samples = 100
 
     X11 = n.linspace(-n.pi,n.pi,n_samples).reshape(-1,1)

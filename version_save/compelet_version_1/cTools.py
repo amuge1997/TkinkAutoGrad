@@ -1,5 +1,5 @@
 import numpy as n
-from Tensor import tensor
+from ThinkAutoGrad.Tensor import tensor
 
 
 # 未测试

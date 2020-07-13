@@ -1,7 +1,7 @@
 
 import numpy as n
-from Tensor import tensor
-import cTools
+from ThinkAutoGrad.Tensor import tensor
+from ThinkAutoGrad import cTools
 
 
 class Layer:
@@ -45,7 +45,7 @@ class Sigmoid(ActivationLayer):
         One1 = tensor(n.ones(Inpt.shape))
         One2 = tensor(n.ones(Inpt.shape))
 
-        Oupt = One1 / (  One2 + cTools.exp(- Inpt)  )
+        Oupt = One1 / (One2 + cTools.exp(- Inpt))
 
         return Oupt
 
