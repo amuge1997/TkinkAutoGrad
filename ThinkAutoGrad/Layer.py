@@ -1,6 +1,7 @@
 from .Tensor import tensor
-from .cTools import cTools as cts
-import numpy as n
+from .cTools import cTools
+import numpy as n,time
+
 
 class Layer:
     def __init__(self):
@@ -30,7 +31,7 @@ class Relu(Layer):
             gradn = n.where(tensorIns.arr > 0.0, 1.0, 0.0) * gradl
             return gradn
 
-        subTensorls = [(tensorIns, getGrad)]
+        subTensorls = [(tensorIns, getGrad, None)]
         newTensor = tensor(arr, subTensorls)
         return newTensor
 
@@ -53,7 +54,7 @@ class Sigmoid(Layer):
             gradn = gradn * gradl
             return gradn
 
-        subTensorls = [(tensorIns, getGrad)]
+        subTensorls = [(tensorIns, getGrad, None)]
         newTensor = tensor(arr, subTensorls)
         return newTensor
 
@@ -84,8 +85,10 @@ class Dense(Layer):
 
         W = tensor(n.random.randn(in_features, out_features) / (n.sqrt(in_features * out_features)) * paramsC)
         b = tensor(n.random.randn(1, out_features) / (n.sqrt(1 * out_features)) * paramsC)
+
         W.setNeedUpdateGrad()
         b.setNeedUpdateGrad()
+
         self.params = {
             'w': W,
             'b': b,
@@ -93,31 +96,32 @@ class Dense(Layer):
 
     def setGradZeros(self):
         W,b = self.params['w'],self.params['b']
-        W.setGradZero()
-        b.setGradZero()
+        W.setGradZero(),b.setGradZero()
+
+    # 原tile方法虽然完整但存在严重效率问题，因此使用以下临时方法
+    # 未测试
+    def btile(self,tensorIns,nDims):
+        arr = n.tile(tensorIns.arr,(nDims,1))
+        def getGrad(gradl):
+            gradn = n.sum(gradl,axis=0,keepdims=True)
+            return gradn
+        subTensorls = [(tensorIns, getGrad, None)]
+        newTensor = tensor(arr, subTensorls)
+        return newTensor
 
     def forward(self,*tsrX):
         self.setGradZeros()
         W, b = self.params['w'], self.params['b']
         tsrX = tsrX[0]
-        B = b.tile((tsrX.shape[0], 1))
+
+        # B = b.tile((tsrX.shape[0], 1))
+
+        # 原tile方法虽然完整但存在严重效率问题，因此使用以下临时方法
+        B = self.btile(b,tsrX.shape[0])
+
+
         Y = tsrX @ W + B
         return Y
-
-class Conv2d(Layer):
-    def __init__(self,in_channles,out_channles,kenel_size,stride=1):
-        super().__init__()
-
-        self.in_channles = in_channles
-        self.out_channles = out_channles
-        self.kenel_size = kenel_size
-        self.stride = stride
-
-    def paramsInit(self):
-        pass
-
-    def forward(self,*tsrX):
-        pass
 
 
 

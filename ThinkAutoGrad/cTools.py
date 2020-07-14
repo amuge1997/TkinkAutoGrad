@@ -1,5 +1,5 @@
 import numpy as n
-from ThinkAutoGrad.Tensor import tensor
+from .Tensor import tensor
 
 class cTools:
 
@@ -48,9 +48,51 @@ class cTools:
         newTensor = tensor(arr, subTensorls)
         return newTensor
 
+    # 未测试
+    # 似乎存在性能问题
+    @staticmethod
+    def cat(tensorList, dim):
+        arr = n.concatenate([ts.arr for ts in tensorList], axis=dim)
+        dimshapels = [ts.shape[dim] for ts in tensorList]
 
+        def getGrad(gradl, params):
+            start = time.time()
 
+            i = params
+            gradn = cTools.rcat(gradl, dim, dimshapels, i)
 
+            end = time.time()
+            global catTime
+            catTime += end - start
+
+            return gradn
+
+        subTensorls = [(ts, getGrad, i) for i, ts in enumerate(tensorList)]
+        newTensor = tensor(arr, subTensorls)
+        return newTensor
+
+    # 似乎存在性能问题
+    @staticmethod
+    def rcat(arr, dim, dimshapels, dimneedi=None):
+        if dimneedi is not None:
+            start = 0
+            for i in range(dimneedi):
+                start += dimshapels[i]
+            end = start + dimshapels[dimneedi]
+            slils = [slice(None, None, None) for i in range(len(arr.shape))]
+            slils[dim] = slice(start, end, None)
+            rarr = arr[tuple(slils)]
+            return rarr
+        else:
+            start = 0
+            rls = [None for i in range(len(dimshapels))]
+            slils = [slice(None, None, None) for i in range(len(arr.shape))]
+            for i, dimshape in enumerate(dimshapels):
+                sli = slice(start, start + dimshape, None)
+                slils[dim] = sli
+                start += dimshape
+                rls[i] = (arr[tuple(slils)])
+            return rls
 
 
 
