@@ -56,15 +56,8 @@ class cTools:
         dimshapels = [ts.shape[dim] for ts in tensorList]
 
         def getGrad(gradl, params):
-            start = time.time()
-
             i = params
             gradn = cTools.rcat(gradl, dim, dimshapels, i)
-
-            end = time.time()
-            global catTime
-            catTime += end - start
-
             return gradn
 
         subTensorls = [(ts, getGrad, i) for i, ts in enumerate(tensorList)]
